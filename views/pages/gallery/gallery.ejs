@@ -1,0 +1,328 @@
+<%- include('../../components/header/header.ejs',{cssFile : 'user'}) %> 
+
+<div class="container-fluid user_data" onscroll="getMoreImages()">
+    <br>
+    <div class="tabs">
+        <div>
+            <a class="inner_tab selected_tab">Approved</a>
+            <a class="inner_tab">Not Approved</a>
+        </div>
+        <div>
+            <a style="color: black;display: inline;font-size: 16px;">Select Category</a>
+            <div class="form-group" style="display: inline-block;">
+              <select class="form-control" id="categories" onchange="getImagesByCategories()" name="categories" aria-label="Images Categories" required>
+                  <option value="all">All</option>
+              </select>
+            </div>
+            <button onclick="window.parent.openGalleryPopup()">Add Images</button>
+          </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 col-md-4 col-sm-6 col-6" id="column_one">
+        
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6 col-6" id="column_two">
+
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6 col-6" id="column_three">
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var approvedoffset = 0;
+    var notapprovedoffset = 0;
+
+    var categoryoffset = 0;
+    var categorynotapprovedoffset = 0;
+
+    function getImagesByCategories() {
+        var category = document.getElementById("categories").value;
+        if(category == 'all'){
+            // console.log(category);
+            approvedoffset = 0;
+            notapprovedoffset = 0;
+            document.getElementById('column_one').innerHTML = '';
+            document.getElementById('column_two').innerHTML = '';
+            document.getElementById('column_three').innerHTML = '';
+            getImages('1','0');
+        } else {
+            categoryoffset = 0;
+            const windowWidth = window.innerWidth;
+            document.getElementById('column_one').innerHTML = '';
+            document.getElementById('column_two').innerHTML = '';
+            document.getElementById('column_three').innerHTML = '';
+            var item = document.getElementsByClassName('selected_tab')[0];
+            var approved;
+            if(item.innerHTML == 'Approved'){
+                approved = 1;
+            } else if(item.innerHTML == 'Not Approved'){
+                approved = 0;
+            }
+            $.ajax({
+                url : `/getImagesByCategoriesForDashboard/${category}/0/${approved}`,
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    // console.log(response);
+                    if(windowWidth <= 768){
+                        for(var i=0;i<response.data.length;i++){
+                            if(document.getElementById(response.data[i].path) == null){
+                                if(i%2 == 0){
+                                    $('#column_one').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                } else {
+                                    $('#column_two').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                }
+                            }
+                        }
+                    } else {
+                        for(var i=0;i<response.data.length;i++){
+                            if(document.getElementById(response.data[i].path) == null){
+                                if(i%3 == 0){
+                                    $('#column_one').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                } else if(i%3 == 1){
+                                    $('#column_two').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                } else if(i%3 == 2){
+                                    $('#column_three').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                }
+                            }
+                        }
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+        }
+    }
+
+    function getMoreImagesByCategories(inneroffset) {
+        var category = document.getElementById("categories").value;
+        const windowWidth = window.innerWidth;
+            if(categoryoffset == 0) {
+                document.getElementById('column_one').innerHTML = '';
+                document.getElementById('column_two').innerHTML = '';
+                document.getElementById('column_three').innerHTML = '';
+            }
+            var item = document.getElementsByClassName('selected_tab')[0];
+            var approved;
+            if(item.innerHTML == 'Approved'){
+                approved = 1;
+            } else if(item.innerHTML == 'Not Approved'){
+                approved = 0;
+            }
+            $.ajax({
+                url : `/getImagesByCategoriesForDashboard/${category}/${inneroffset}/${approved}`,
+                dataType: "json",
+                type: "GET",
+                success: function(response){
+                    // console.log(response);
+                    if(windowWidth <= 768){
+                        for(var i=0;i<response.data.length;i++){
+                            if(document.getElementById(response.data[i].path) == null){
+                                if(i%2 == 0){
+                                    $('#column_one').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                } else {
+                                    $('#column_two').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                }
+                            }
+                        }
+                    } else {
+                        for(var i=0;i<response.data.length;i++){
+                            if(document.getElementById(response.data[i].path) == null){
+                                if(i%3 == 0){
+                                    $('#column_one').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                } else if(i%3 == 1){
+                                    $('#column_two').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                } else if(i%3 == 2){
+                                    $('#column_three').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                                }
+                            }
+                        }
+                    }
+                },
+                error: function(err){
+                    console.log(err);
+                    alert('Some error occured !!');
+                }
+            });
+    }
+
+    //Change Tabs
+    document.querySelectorAll('.inner_tab').forEach(item => {
+        item.addEventListener('click', event => {
+            var selected_list = document.getElementsByClassName('selected_tab')[0];
+            selected_list.classList.remove('selected_tab');
+            item.classList.add('selected_tab');
+            var category = document.getElementById("categories").value;
+            if(category == 'all'){
+                if(selected_list.innerHTML != item.innerHTML) {
+                    document.getElementById('column_one').innerHTML = '';
+                    document.getElementById('column_two').innerHTML = '';
+                    document.getElementById('column_three').innerHTML = '';
+                }
+                approvedoffset = 0;
+                notapprovedoffset = 0;
+                if(item.innerHTML == 'Approved'){
+                    getImages('1',approvedoffset);
+                } else if(item.innerHTML == 'Not Approved'){
+                    getImages('0',notapprovedoffset);
+                }
+            } else {
+                // console.log('hello');
+                if(selected_list.innerHTML != item.innerHTML) {
+                    document.getElementById('column_one').innerHTML = '';
+                    document.getElementById('column_two').innerHTML = '';
+                    document.getElementById('column_three').innerHTML = '';
+                }
+                categoryoffset = 0;
+                categorynotapprovedoffset = 0;
+                getImagesByCategories();
+            }
+        });
+    });
+
+    function getMoreImages() {
+        var category = document.getElementById("categories").value;
+        if(category == 'all'){
+            var item = document.getElementsByClassName('selected_tab')[0];
+            if(item.innerHTML == 'Approved'){
+                approvedoffset = approvedoffset+20;
+                getImages('1',approvedoffset);
+            } else if(item.innerHTML == 'Not Approved'){
+                notapprovedoffset = notapprovedoffset+20;
+                getImages('0',notapprovedoffset);
+            }
+        } else {
+            var item = document.getElementsByClassName('selected_tab')[0];
+            if(item.innerHTML == 'Approved'){
+                categoryoffset = categoryoffset+20;
+                getMoreImagesByCategories(categoryoffset);
+            } else if(item.innerHTML == 'Not Approved'){
+                categorynotapprovedoffset = categorynotapprovedoffset+20;
+                getMoreImagesByCategories(categoryoffset);
+            }
+        }
+    }
+
+    function deleteCurrentGalleryImages(path) {
+        if(confirm('Do you want to delete it?') == true){
+            if(path != '/images/extra/nopreview.jpeg') {
+                $.ajax({
+                    url : '/deleteGalleryPhoto',
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        path:path
+                    },
+                    success: function(response){
+                        console.log('Removed Successfully');
+                        location.reload();
+                    },
+                    error: function(err){
+                        console.log(err);
+                        alert('Some error occured !!');
+                    }
+                });
+            }
+        } 
+    }
+
+    function approveGalleryImage(path,approve_value) {
+        if(confirm('Do you want to change it?') == true){
+            if(path != '/images/extra/nopreview.jpeg') {
+                $.ajax({
+                    url : '/approveGalleryPhoto',
+                    dataType: "json",
+                    type: "POST",
+                    data: {
+                        path:path,
+                        approve_value:approve_value
+                    },
+                    success: function(response){
+                        console.log('Updated Successfully');
+                        // location.reload();
+                        document.getElementById(path).remove();
+                    },
+                    error: function(err){
+                        console.log(err);
+                        alert('Some error occured !!');
+                    }
+                });
+            }
+        } 
+    }
+
+    function getCategories() {
+        // console.log(windowWidth)
+        var select = document.getElementById("categories");
+        $.ajax({
+            url :  `/getCategories`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                // console.log(response);
+                if(response.data.length !=0) {
+                    for(var i=0;i<response.data.length;i++){
+                        var option = document.createElement("option");
+                        option.text = response.data[i].name;
+                        option.value= response.data[i].name;
+                        select.add(option);
+                    }
+                }
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+    }
+
+    function getImages(aprroval,offset) {
+        const windowWidth = window.innerWidth;
+        // console.log(windowWidth)
+        $.ajax({
+            url :  `/getImages/${aprroval}/${offset}`,
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                // console.log(response);
+                if(windowWidth <= 768){
+                    for(var i=0;i<response.data.length;i++){
+                        if(document.getElementById(response.data[i].path) == null){
+                            if(i%2 == 0){
+                                $('#column_one').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            } else {
+                                $('#column_two').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            }
+                        }
+                    }
+                } else {
+                    for(var i=0;i<response.data.length;i++){
+                        if(document.getElementById(response.data[i].path) == null){
+                            if(i%3 == 0){
+                                $('#column_one').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            } else if(i%3 == 1){
+                                $('#column_two').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            } else if(i%3 == 2){
+                                $('#column_three').append('<div class="card" id="'+ response.data[i].path +'"><a class="delete_gallery_images" onclick="deleteCurrentGalleryImages(\''+ response.data[i].path +'\')"><span class="iconify" data-icon="mi:delete-alt"></span></a><a class="approved_gallery_images" onclick="approveGalleryImage(\''+ response.data[i].path +'\',\''+ response.data[i].approved +'\')"><span class="iconify" data-icon="teenyicons:tick-outline"></span></a><img src="'+ response.data[i].path +'" /></div>');
+                            }
+                        }
+                    }
+                }
+            },
+            error: function(err){
+                console.log(err);
+                alert('Some error occured !!');
+            }
+        });
+        getCategories();
+    }
+
+    window.onload = getImages('1',approvedoffset);
+</script>
+
+<%- include('../../components/footer/footer.ejs') %> 

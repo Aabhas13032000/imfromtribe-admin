@@ -1,0 +1,44 @@
+<%- include('../header/header.ejs',{cssFile : 'sidebar'}) %> 
+
+<div class="sidebar">
+    <div id="selected_card" class="selected_card"></div>
+    <div class="logo">
+        <h3>#imfromtribe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="iconify" data-icon="akar-icons:cross" style="width: 15px;" onclick="toggleSideBar()"></span></h3>
+    </div>
+    <ul>
+        <li class="list">
+            <span class="iconify" data-icon="ant-design:user-outlined"></span>
+            <span class="sidebar_text">User</span>
+        </li>
+        <li class="list">
+            <span class="iconify" data-icon="bi:camera"></span>
+            <span class="sidebar_text">Photographer</span>
+        </li>
+        <li class="list">
+            <span class="iconify" data-icon="akar-icons:folder"></span>
+            <span class="sidebar_text">Gallery</span>
+        </li>
+        <!-- <li class="list">
+            <span class="iconify" data-icon="iconoir:profile-circled"></span>
+            <span class="sidebar_text">Approvals</span>
+        </li> -->
+        <li class="list">
+            <span class="iconify" data-icon="carbon:blog"></span>
+            <span class="sidebar_text">Blogs</span>
+        </li>
+        <li class="list">
+            <span class="iconify" data-icon="bx:bx-category"></span>
+            <span class="sidebar_text">Categories</span>
+        </li>
+        <li class="list">
+            <span class="iconify" data-icon="carbon:review"></span>
+            <span class="sidebar_text">Testimonials</span>
+        </li>
+        <li class="list">
+            <span class="iconify" data-icon="iconoir:profile-circled"></span>
+            <span class="sidebar_text">Profile</span>
+        </li>
+    </ul>
+</div>
+
+<%- include('../footer/footer.ejs') %> 
