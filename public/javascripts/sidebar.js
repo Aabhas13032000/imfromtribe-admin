@@ -1,17 +1,17 @@
 
-if(document.cookie.length != 0){
-    document.getElementById('loaded_page').setAttribute('src',`${document.cookie.split('=')[1]}`);
-    console.log(document.cookie.split('=')[1].split('/')[1]);
-    document.querySelectorAll('.list').forEach(item => {
-        if(item.getElementsByClassName('sidebar_text')[0].innerHTML.toLowerCase() === document.cookie.split('=')[1].split('/')[1]) {
-            item.classList.add('selected');
-            document.getElementById('selected_card').style.top = `${item.getBoundingClientRect().top}px`;
-            document.getElementById('selected_card').style.left = `${item.getBoundingClientRect().left}px`;
-        }
-    });
-    // window.history.pushState("object or string", "Title", `${document.cookie.split('=')[1]}`);
+// if(document.cookie.length != 0){
+//     document.getElementById('loaded_page').setAttribute('src',`${document.cookie.split('=')[1]}`);
+//     console.log(document.cookie.split('=')[1].split('/')[1]);
+//     document.querySelectorAll('.list').forEach(item => {
+//         if(item.getElementsByClassName('sidebar_text')[0].innerHTML.toLowerCase() === document.cookie.split('=')[1].split('/')[1]) {
+//             item.classList.add('selected');
+//             document.getElementById('selected_card').style.top = `${item.getBoundingClientRect().top}px`;
+//             document.getElementById('selected_card').style.left = `${item.getBoundingClientRect().left}px`;
+//         }
+//     });
+//     // window.history.pushState("object or string", "Title", `${document.cookie.split('=')[1]}`);
 
-} else {
+// } else {
     document.getElementById('loaded_page').setAttribute('src',`/user`);
     // First time bringing the box
     document.getElementsByClassName('list')[0].classList.add('selected');
@@ -19,7 +19,7 @@ if(document.cookie.length != 0){
     document.getElementById('selected_card').style.top = `${selected_list.getBoundingClientRect().top}px`;
     document.getElementById('selected_card').style.left = `${selected_list.getBoundingClientRect().left}px`;
     // window.history.pushState("object or string", "Title", `/user`);
-}
+// }
 
 //Onclick moving box
 document.querySelectorAll('.list').forEach(item => {
@@ -32,8 +32,8 @@ document.querySelectorAll('.list').forEach(item => {
         var urlValue = item.getElementsByClassName('sidebar_text')[0].innerHTML.toLowerCase();
         document.getElementById('loaded_page').setAttribute('src',`/${urlValue}`);
         toggleSideBar();
-        document.cookie = `url=/${urlValue}`;
-        console.log(document.cookie);
+        // document.cookie = `url=/${urlValue}`;
+        // console.log(document.cookie);
         // window.history.pushState("object or string", "Title", `/${urlValue}`);
     });
 });

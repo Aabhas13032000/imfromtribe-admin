@@ -31,12 +31,14 @@ const path = require('path');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   // console.log(req.session);
-  req.session.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluQGlhbWZyb210cmliZS5jb20iLCJwYXNzd29yZCI6ImFkbWluQGlhbWZyb210cmliZSIsInVzZXJfaWQiOjEsImlhdCI6MTYzOTcyMDg5Mn0.zBZMMSnlfTXbLzE1dsfXamTOQEnCmTu5EHpLisrKSl4';
-  if(req.session.token){
+  // req.session.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluQGlhbWZyb210cmliZS5jb20iLCJwYXNzd29yZCI6ImFkbWluQGlhbWZyb210cmliZSIsInVzZXJfaWQiOjEsImlhdCI6MTYzOTcyMDg5Mn0.zBZMMSnlfTXbLzE1dsfXamTOQEnCmTu5EHpLisrKSl4';
+  if(req.session.token && req.session.initialPath.length != 0){
     verify(req.session.token,accessTokenSecret,(err,decoded) => {
       console.log(err);
       console.log(decoded);
-      res.render('index');
+      res.render('index',{
+        initialPath : req.session.initialPath,
+      });
     });
   } else {
     if(req.query.error){
@@ -121,6 +123,7 @@ router.post('/login', function(req, res, next) {
       if(result.length !=0){
         const jsontoken = sign({username : req.body.email, password:req.body.password, user_id: result[0].id},accessTokenSecret);
         req.session.token = jsontoken;
+        req.session.initialPath = '/user';
         res.redirect('/');
       } else {
         res.redirect('/?error=Invalid username and password !!');
