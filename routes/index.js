@@ -1,16 +1,14 @@
+/* --------- Local variables -------- */
 const express = require('express');
 const router = express.Router();
 const { sign,verify } = require('jsonwebtoken');
 const accessTokenSecret = 'youraccesstokensecret';
+
+/* ------- Storage plugin ------- */
 const multer = require('multer');
 const sharp = require("sharp");
 const fs =  require('fs');
-const pool = require('../database/connection');
-// const AWS = require('aws-sdk');
-// const s3 = new AWS.S3({
-//   accessKeyId: 'AKIAZ6KYMGIZIMW7EQEX',
-//   secretAccessKey: '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'
-// });
+const path = require('path');
 
 const fileStorageEngine = multer.diskStorage({
   destination: (req,file,callback) => {
@@ -25,17 +23,27 @@ const upload = multer({
   storage : fileStorageEngine,
 });
 
+
+/* ------- Database ------- */
+const pool = require('../database/connection');
+
+/* ---------------- AWS integration --------------- */
+// const AWS = require('aws-sdk');
+// const s3 = new AWS.S3({
+//   accessKeyId: 'AKIAZ6KYMGIZIMW7EQEX',
+//   secretAccessKey: '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'
+// });
+
+/* ------- Controllers -------- */
 const controllers = require('../controllers/controllers');
-const path = require('path');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  // console.log(req.session);
-  // req.session.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluQGlhbWZyb210cmliZS5jb20iLCJwYXNzd29yZCI6ImFkbWluQGlhbWZyb210cmliZSIsInVzZXJfaWQiOjEsImlhdCI6MTYzOTcyMDg5Mn0.zBZMMSnlfTXbLzE1dsfXamTOQEnCmTu5EHpLisrKSl4';
+  // console.log(req.session.initialPath);
+  req.session.token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluQGlhbWZyb210cmliZS5jb20iLCJwYXNzd29yZCI6IjEyMzQ1Njc4IiwidXNlcl9pZCI6MSwiaWF0IjoxNjQ3MjcwMjI2fQ.5DT4dUhTgRT2g8A8PDw2emzLjf0eimXDB1J8dzPvwgQ';
+  req.session.initialPath = '/user';
   if(req.session.token && req.session.initialPath.length != 0){
     verify(req.session.token,accessTokenSecret,(err,decoded) => {
-      console.log(err);
-      console.log(decoded);
       res.render('index',{
         initialPath : req.session.initialPath,
       });
@@ -112,9 +120,15 @@ router.get('/logout', function(req, res, next) {
   })
 });
 
+/* Change Initial Path. */
+router.post('/changeInitialPath', function(req, res, next) {
+  req.session.initialPath = `/${req.body.path}`;
+  res.json({message:'success'});
+});
+
 /* POST login page. */
 router.post('/login', function(req, res, next) {
-  console.log(req.body);
+  // console.log(req.body);
   const check_user = "SELECT * FROM `appData` WHERE `username` = '"+ req.body.email +"' AND `password` = '"+ req.body.password +"'";
   pool.query(check_user,function(err,result){
     if(err) {
@@ -142,6 +156,7 @@ router.post('/updatePassword', function(req, res, next) {
 
 // Api's
 
+/*-----------------------------------------------------------------------------------------------------*/
 //Photographer
 router.get('/getPhotographers/:offset',controllers.getPhotographers);
 router.get('/getNotPhotographers/:offset',controllers.getNotPhotographers);
@@ -151,7 +166,9 @@ router.get('/getSearchPhotographerIncludeId/:name',controllers.getSearchPhotogra
 router.get('/getSearchPhotographerExcludeId/:id/:name',controllers.getSearchPhotographerExcludeId);
 router.post('/deletePhotographger',controllers.deletePhotographer);
 router.post('/becomeAPhotographer',controllers.becomeAPhotographer);
+/*-----------------------------------------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------------------------------------*/
 //Blogs
 router.post('/deleteBlog',controllers.deleteBlog);
 router.get('/getBlogs',controllers.getBlogs);
@@ -184,7 +201,9 @@ router.post('/saveEditBookImages/:id/:value',upload.array('book_images'),functio
   }
   res.json({files: req.files}); 
 });
+/*-----------------------------------------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------------------------------------*/
 //save profile picture
 router.post('/saveProfilePicture',upload.single('profile_image'),function(req,res,next){
   res.json({path: req.file.path}); 
@@ -213,7 +232,7 @@ router.post('/saveEditBookImages/:id',upload.single('book_images'),function(req,
         }
     });
 });
-
+/*-----------------------------------------------------------------------------------------------------*/
 
 router.post('/deleteEditPhoto',function(req,res,next){
   var path = `public${req.body.path}`;
@@ -234,7 +253,14 @@ router.post('/deleteEditPhoto',function(req,res,next){
   }); 
 });
 
-//Common Testimonial + Categories
+/*-----------------------------------------------------------------------------------------------------*/
+//Testimonal
+router.post('/deleteTestimonial',controllers.deleteTestimonial);
+router.get('/getTestimonials',controllers.getTestimonials);
+router.get('/getImpTestimonials',controllers.getImpTestimonials);
+router.post('/addTestimonial',controllers.addTestimonial);
+router.post('/markedTestimonialImportant',controllers.markedTestimonialImportant);
+/* --------- Common Testimonial + Categories --------- */
 router.get('/getImpCategoriesTestimonials',function(req,res){
   const categories  = "SELECT * FROM `categories` WHERE `status` = 1 AND `imp` = 1";
   const testimonials  = "SELECT * FROM `testimonials` WHERE `status` = 1 AND `imp` = 1";
@@ -257,20 +283,51 @@ router.get('/getImpCategoriesTestimonials',function(req,res){
     }
   });
 });
+/*-----------------------------------------------------------------------------------------------------*/
 
-//Testimonal
-router.post('/deleteTestimonial',controllers.deleteTestimonial);
-router.get('/getTestimonials',controllers.getTestimonials);
-router.get('/getImpTestimonials',controllers.getImpTestimonials);
-router.post('/addTestimonial',controllers.addTestimonial);
-router.post('/markedTestimonialImportant',controllers.markedTestimonialImportant);
-
+/*-----------------------------------------------------------------------------------------------------*/
 //Gallery
 router.post('/addGalleryImages',controllers.addGalleryImages);
 router.get('/getImagesByCategories/:category/:offset',controllers.getImagesByCategories);
 router.get('/getImagesByCategoriesForDashboard/:category/:offset/:approval',controllers.getImagesByCategoriesForDashboard);
 router.get('/getImages/:approval/:offset',controllers.getImages);
+/* ------- Approve Gallery Photo ------- */
+router.post('/approveGalleryPhoto',function(req,res,next){
+  if(req.body.approve_value == 1){
+    var query2  = "UPDATE `images` SET `approved` = 0 WHERE `path` = '"+ req.body.path +"'";
+  } else {
+    var query2  = "UPDATE `images` SET `approved` = 1 WHERE `path` = '"+ req.body.path +"'";
+  }
+  pool.query(query2,function(err,results,fields){
+    if(err) {
+      console.log(err);
+    } else {
+      res.json({message: 'success'}); 
+    }
+  }); 
+});
+/* ------ Delete Gallery Photo ------ */
+router.post('/deleteGalleryPhoto',function(req,res,next){
+  var splited_array = req.body.path.split('/');
+  var path = `public${req.body.path}`;
+  const query2  = "DELETE FROM `images` WHERE `path` = '"+ req.body.path +"'";
+  pool.query(query2,function(err,results,fields){
+    if(err) {
+      console.log(err);
+    } else {
+      fs.unlink(path,(err) => {
+        if(err) {
+          console.log(err);
+        } else {
+          res.json({message: 'success'});
+        }
+      });
+    }
+  }); 
+});
+/*-----------------------------------------------------------------------------------------------------*/
 
+/*-----------------------------------------------------------------------------------------------------*/
 // category
 router.get('/getCategories',controllers.getCategories);
 router.get('/getImpCategories',controllers.getImpCategories);
@@ -301,6 +358,7 @@ router.post('/uploadCategoryImage',upload.single('category_image'), async functi
       });
     });
 });
+/*-----------------------------------------------------------------------------------------------------*/
 
 router.post('/uploadUserCoverImage/:user_id',upload.single('cover_image'), async function(req,res,next){
   // console.log(req.file);
@@ -370,54 +428,6 @@ router.post('/saveGalleryImages',upload.array('gallery_images'),function(req,res
       res.json({files: array_of_names}); 
     }
   }
-});
-
-router.post('/deletePhoto',function(req,res,next){
-  var splited_array = req.body.path.split('/');
-  // console.log(splited_array);
-  var path = `public${req.body.path}`;
-  // console.log(path);
-  fs.unlink(path,(err) => {
-    if(err) {
-      console.log(err);
-    } else {
-      res.json({message: 'success'});
-    }
-  });
-});
-
-router.post('/deleteGalleryPhoto',function(req,res,next){
-  var splited_array = req.body.path.split('/');
-  var path = `public${req.body.path}`;
-  const query2  = "DELETE FROM `images` WHERE `path` = '"+ req.body.path +"'";
-  pool.query(query2,function(err,results,fields){
-    if(err) {
-      console.log(err);
-    } else {
-      fs.unlink(path,(err) => {
-        if(err) {
-          console.log(err);
-        } else {
-          res.json({message: 'success'});
-        }
-      });
-    }
-  }); 
-});
-
-router.post('/approveGalleryPhoto',function(req,res,next){
-  if(req.body.approve_value == 1){
-    var query2  = "UPDATE `images` SET `approved` = 0 WHERE `path` = '"+ req.body.path +"'";
-  } else {
-    var query2  = "UPDATE `images` SET `approved` = 1 WHERE `path` = '"+ req.body.path +"'";
-  }
-  pool.query(query2,function(err,results,fields){
-    if(err) {
-      console.log(err);
-    } else {
-      res.json({message: 'success'}); 
-    }
-  }); 
 });
 
 module.exports = router;

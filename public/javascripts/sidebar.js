@@ -31,12 +31,33 @@ document.querySelectorAll('.list').forEach(item => {
         document.getElementById('selected_card').style.left = `${item.getBoundingClientRect().left}px`;
         var urlValue = item.getElementsByClassName('sidebar_text')[0].innerHTML.toLowerCase();
         document.getElementById('loaded_page').setAttribute('src',`/${urlValue}`);
+        changeInitialPath(urlValue);
         toggleSideBar();
         // document.cookie = `url=/${urlValue}`;
         // console.log(document.cookie);
         // window.history.pushState("object or string", "Title", `/${urlValue}`);
     });
 });
+
+//Change initial path
+function changeInitialPath(path) {
+    $.ajax({
+        url : '/changeInitialPath',
+        dataType: "json",
+        type: "POST",
+        data: {
+            path:path
+        },
+        success: function(response){
+            // alert('Deleted Successfullyt!!');
+            // location.reload();
+        },
+        error: function(err){
+            console.log(err);
+            alert('Some error occured !!');
+        }
+    });
+}
 
 //toggle Sidebar
 function toggleSideBar() {
