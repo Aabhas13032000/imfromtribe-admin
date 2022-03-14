@@ -27,7 +27,7 @@
 }
 
 .sidebar ul .list {
-    margin-bottom: 45px;
+    margin-bottom: 40px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -43,6 +43,13 @@
 .sidebar ul .list .sidebar_text {
     margin-left: 5px;
     color: var(--unselectedSidebarText-color);
+    transition: 0.3s ease-in;
+}
+
+.sidebar ul .selected {
+    background-color: var(--contrast-color);
+    border-radius: 12px;
+    padding: 10px 5px;
     transition: 0.3s ease-in;
 }
 
