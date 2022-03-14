@@ -4,6 +4,16 @@
     <br>
     <div class="add_button">
       <a href="#">Users</a>
+      <div class="search_bar">
+        <div class="search_input">
+            <div class="icon">
+              <a><span class="iconify" data-icon="akar-icons:search"></span></a>
+            </div>
+            <div class="input">
+              <input type="text" name="" id="" onkeyup="searchUser(this.value)" placeholder="Search by name">
+            </div>
+          </div>
+      </div>
       <!-- <button type="button" data-bs-toggle="modal" data-bs-target="#addBook">Add Blog</button> -->
     </div>
     <table>
@@ -29,6 +39,35 @@
 <script>
 
     var offset = 0;
+
+  function searchUser(value) {
+    // console.log(value);
+      document.getElementById('data').innerHTML = '';
+    if(value.length != 0) {
+      $.ajax({
+        url : `/users/getSearchUser/${value}`,
+        dataType: "json",
+        type: "GET",
+        success: function(response){
+          // console.log(response);
+          if(response.data.length != 0){
+                  for(var i=0;i<response.data.length;i++){
+                    //   console.log(response.data[i].description);
+                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td><td><a href="mailto:'+ response.data[i].email +'">'+ response.data[i].email +'</a></td><td><a href="#" onclick="becomeAPhotographer('+ response.data[i].id +')">Become a photographer</a></td> </tr>');
+                  }
+                } else {
+                    // $('#data').append('<tr><td>No Blogs present</td></tr>')
+                }
+        },
+        error: function(err){
+          console.log(err);
+          alert('Some error occured !!');
+        }
+      });
+    } else {
+      getPhotographers(0);
+    }
+  }
 
   function deletePhotographger(id) {
     if(confirm('Do you want to delete it?') == true){

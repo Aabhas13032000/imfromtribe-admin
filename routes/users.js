@@ -27,6 +27,7 @@ router.get('/getUser/:token',controllers.getUser);
 router.get('/getUserImagesVideos/:category/:id/:offset',controllers.getUserImagesVideos);
 router.get('/checkUser/:email',controllers.checkUser);
 router.post('/signup',controllers.saveUser);
+router.get('/getSearchUser/:name',controllers.getSearchUser);
 
 router.post('/sendmail',function(req,res){
     // console.log(req.body);

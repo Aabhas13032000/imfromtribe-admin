@@ -1,4 +1,4 @@
-const {saveusertoken,getuser,saveuser,checkuser,updateloginstatus,updatedetails,getuserimagesvideos} = require('../services/user');
+const {saveusertoken,getuser,saveuser,checkuser,updateloginstatus,updatedetails,getuserimagesvideos,getsearchuser} = require('../services/user');
 
 module.exports = {
     getUser: (req,res) => {
@@ -75,6 +75,17 @@ module.exports = {
             } else {
                 // console.log(results); 
                 res.json({message:'User Updated Successfully'});
+            }
+        });
+    },
+    getSearchUser: (req,res) => {
+        getsearchuser(req.params,(err,results) => {
+            if(err) {
+                console.log(err);
+                res.json({message:'Database connection error !!'});
+            } else {
+                // console.log(results);
+                res.json({data:results});
             }
         });
     },

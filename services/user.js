@@ -71,4 +71,14 @@ module.exports = {
             }
         });
     },
+    getsearchuser : (data,callback) => {
+        const query = "SELECT *  FROM `users` WHERE `status` = 1 AND `role_id` = 3 AND `name` LIKE '%"+ data.name +"%'";
+        pool.query(query,function(err,results,fields){
+            if(err) {
+                callback(err);
+            } else {
+                callback(null,results);
+            }
+        });
+    },
 };
