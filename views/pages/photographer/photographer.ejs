@@ -110,7 +110,7 @@
                 if(response.data.length != 0){
                   for(var i=0;i<response.data.length;i++){
                     //   console.log(response.data[i].description);
-                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td><td>'+ response.data[i].phone +'</td><td><a href="mailto:'+ response.data[i].email +'">'+ response.data[i].email.slice(0,20) +'...</a></td><td>'+ response.data[i].gender +'</td><td><a href="http://imfromtribe.com/profile/'+ response.data[i].id +'" target="_blank">Open</a></td><td> <div class="options"> <a class="delete" onclick="deletePhotographger('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr>');
+                    $('#data').append('<tr> <td>'+ response.data[i].name +'</td><td>'+ response.data[i].phone +'</td><td><a href="mailto:'+ response.data[i].email +'">'+ response.data[i].email.slice(0,20) +'...</a></td><td>'+ response.data[i].gender +'</td><td><a href="http://imfromtribe.com/eachprofile/'+ response.data[i].id +'" target="_blank">Open</a></td><td> <div class="options"> <a class="delete" onclick="deletePhotographger('+response.data[i].id+')"><span class="iconify" data-icon="ant-design:delete-outlined"></span></a></div> </td> </tr>');
                   }
                 } else {
                     // $('#data').append('<tr><td>No Blogs present</td></tr>')
